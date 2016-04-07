@@ -42,7 +42,6 @@ public class Main extends ApplicationAdapter implements InputProcessor {
 				Gdx.graphics.getHeight() / ppm);
 		// cam.zoom = 10f;
 
-		ai = new QuadAI();
 
 		lastVel = new Vector2();
 		
@@ -58,6 +57,7 @@ public class Main extends ApplicationAdapter implements InputProcessor {
 		scene = loader.loadScene(Gdx.files.internal("world.json"));
 
 		quad = scene.getNamed(Body.class, "Drone").first();
+		ai = new QuadAI();
 		
 		
 	}
@@ -139,7 +139,10 @@ public class Main extends ApplicationAdapter implements InputProcessor {
 		shape.setProjectionMatrix(cam.combined);
 		shape.begin(ShapeType.Line);
 		shape.setColor(Color.YELLOW);
-		shape.circle(posleft.x, posleft.y, 0.01f, 10);
+		//shape.circle(posleft.x, posleft.y, 0.01f, 10);
+		//shape.circle(posright.x, posright.y, 0.01f, 10);
+		
+		shape.setColor(1, 1-forces.x/MaxForce, 0, 1);
 		shape.line(
 				posleft,
 				new Vector2(posleft.x + forces.x
@@ -148,6 +151,7 @@ public class Main extends ApplicationAdapter implements InputProcessor {
 						* MathUtils.sin(1.5f * MathUtils.PI + quad.getAngle())
 						/ ppm));
 
+		shape.setColor(1, 1-forces.y/MaxForce, 0, 1);
 		shape.line(
 				posright,
 				new Vector2(posright.x + forces.y
@@ -156,8 +160,6 @@ public class Main extends ApplicationAdapter implements InputProcessor {
 						* MathUtils.sin(1.5f * MathUtils.PI + quad.getAngle())
 						/ ppm));
 
-		shape.circle(posright.x, posright.y, 0.01f, 10);
-		
 		shape.end();
 
 		scene.step();
