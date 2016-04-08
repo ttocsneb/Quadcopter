@@ -8,38 +8,72 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.utils.Array;
 import com.gushikustudios.rube.RubeScene;
 import com.gushikustudios.rube.loader.RubeSceneLoader;
 
 public class Main extends ApplicationAdapter implements InputProcessor {
 	private static final float MaxForce = 50;
 	private static final int ppm = 50;
-	RubeScene scene;
+	private RubeScene scene;
 
-	Box2DDebugRenderer renderer;
-	ShapeRenderer shape;
-	OrthographicCamera cam;
+	private Box2DDebugRenderer renderer;
+	private ShapeRenderer shape;
+	private OrthographicCamera cam;
 
-	Body quad;
+	private Body quad;
 
-	QuadAI ai;
+	private QuadAI ai;
+	
+	private OrthographicCamera batchCam;
+	public static BitmapFont font;
+	private SpriteBatch batch;
+	private static Array<GlyphLayout> text; 
+	
+	private GlyphLayout position;
+	private GlyphLayout orientation;
+	private GlyphLayout velocity;
+	
+	/**
+	 * Add a line to the display. 
+	 * @param layout
+	 */
+	public static void addText(GlyphLayout... layout) {
+		for(GlyphLayout l : layout) {
+			text.add(l);
+		}
+	}
 
 	@Override
 	public void create() {
 		Gdx.app.setLogLevel(Application.LOG_DEBUG);
 
+		font = new BitmapFont(Gdx.files.internal("isocteur.fnt"));
+		font.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		batch = new SpriteBatch();
+		text = new Array<GlyphLayout>();
 		
+		position = new GlyphLayout(font, "Positon: ");
+		velocity = new GlyphLayout(font, "Velocity: ");
+		orientation = new GlyphLayout(font, "Orientation:");
+		addText(position, velocity, orientation, new GlyphLayout(font, "--------------"));
 
 		shape = new ShapeRenderer();
 		renderer = new Box2DDebugRenderer();
 		cam = new OrthographicCamera(Gdx.graphics.getWidth() / ppm,
 				Gdx.graphics.getHeight() / ppm);
+		batchCam = new OrthographicCamera();
+		batchCam.setToOrtho(false, 1920, 1080);
 		// cam.zoom = 10f;
 
 
@@ -47,6 +81,8 @@ public class Main extends ApplicationAdapter implements InputProcessor {
 		
 		Gdx.input.setInputProcessor(this);
 		
+
+		ai = new QuadAI();
 		init();
 
 	}
@@ -57,8 +93,7 @@ public class Main extends ApplicationAdapter implements InputProcessor {
 		scene = loader.loadScene(Gdx.files.internal("world.json"));
 
 		quad = scene.getNamed(Body.class, "Drone").first();
-		ai = new QuadAI();
-		
+		ai.reset();
 		
 	}
 
@@ -161,7 +196,23 @@ public class Main extends ApplicationAdapter implements InputProcessor {
 						/ ppm));
 
 		shape.end();
+		
+		orientation.setText(font, "Orientation: " + MathUtils.round(quad.getAngle()*MathUtils.radiansToDegrees) + " deg");
+		velocity.setText(font, "Velocity: " + MathUtils.round(quad.getLinearVelocity().x * 100)/100f + ", " + MathUtils.round(quad.getLinearVelocity().y * 100)/100f);
+		position.setText(font, "Position: " + MathUtils.round(quad.getPosition().x * 100)/100f + ", " + MathUtils.round(quad.getPosition().y * 100)/100f);
 
+		batchCam.update();
+		batch.setProjectionMatrix(batchCam.combined);
+		batch.begin();
+		
+		int position = 1070;
+		for(GlyphLayout l : text) {
+			font.draw(batch, l, 10, position);
+			position -= l.height + 10;
+		}
+		
+		batch.end();
+		
 		scene.step();
 
 	}
@@ -169,6 +220,7 @@ public class Main extends ApplicationAdapter implements InputProcessor {
 	@Override
 	public void resize(int width, int height) {
 		cam.setToOrtho(false, width/ppm, height/ppm);
+		batchCam.setToOrtho(false, (width/(float)height)*1080, 1080);
 	}
 	
 	@Override
@@ -176,6 +228,8 @@ public class Main extends ApplicationAdapter implements InputProcessor {
 		shape.dispose();
 		scene.getWorld().dispose();
 		renderer.dispose();
+		batch.dispose();
+		font.dispose();
 	}
 
 	//////////////////////////////////////////////////////////

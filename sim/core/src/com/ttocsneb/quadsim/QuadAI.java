@@ -2,6 +2,7 @@ package com.ttocsneb.quadsim;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 
@@ -16,9 +17,22 @@ public class QuadAI {
 	float i_mem_pitch, pitch_setpoint, gyro_pitch_input, output_pitch, last_pitch_d_error;
 	double gyro_pitch;
 	
+	GlyphLayout gyro;
+	GlyphLayout pitch;
+	GlyphLayout accelerometer;
+	
 	public QuadAI() {
+		gyro = new GlyphLayout(Main.font, "Gyro: ");
+		pitch = new GlyphLayout(Main.font, "Pitch: ");
+		accelerometer = new GlyphLayout(Main.font, "Accel: ");
+		Main.addText(gyro, pitch, accelerometer);
+	}
+	
+	public void reset() {
 		i_mem_pitch = 0;
 		last_pitch_d_error = 0;
+		throttle = 0;
+		
 	}
 	
 	float throttle;
@@ -33,14 +47,19 @@ public class QuadAI {
 	 */
 	public Vector2 update(float gyroData, Vector2 accelData) {
 		
+		accelData.x = MathUtils.round(accelData.x*100)/100f;
+		accelData.y = MathUtils.round(accelData.y*100)/100f;
+		
 		float pitch = (float)Math.atan(accelData.x/accelData.y/*NOTE: if there is a third axis like in real life, find the total value between y/z*/)*MathUtils.radiansToDegrees;
 		//Don't forget to add the roll value in a 3d object.
 		
-		Gdx.app.debug("Data", "G " + gyroData + " P " + pitch + " X " + accelData.x + " Y " + accelData.y);
 		
 		
 		
 		gyro_pitch_input = gyro_pitch_input *0.8f + ((gyroData*MathUtils.radiansToDegrees)*.2f);
+		gyro.setText(Main.font, "Gyro: " + MathUtils.round(gyro_pitch_input));
+		this.pitch.setText(Main.font, "Pitch: " + MathUtils.round(pitch));
+		accelerometer.setText(Main.font, "Accel: " +accelData.x + ", " + accelData.y);
 
 		//Set the setpoint (degrees per second) by the left and right keys with a max of 164 dps
 		pitch_setpoint = Gdx.input.isKeyPressed(Keys.LEFT) ? 164 : (Gdx.input.isKeyPressed(Keys.RIGHT) ? -164 : 0);
