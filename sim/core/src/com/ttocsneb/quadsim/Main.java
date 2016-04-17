@@ -34,22 +34,23 @@ public class Main extends ApplicationAdapter implements InputProcessor {
 	private Body quad;
 
 	private QuadAI ai;
-	
+
 	private OrthographicCamera batchCam;
 	public static BitmapFont font;
 	private SpriteBatch batch;
-	private static Array<GlyphLayout> text; 
-	
+	private static Array<GlyphLayout> text;
+
 	private GlyphLayout position;
 	private GlyphLayout orientation;
 	private GlyphLayout velocity;
-	
+
 	/**
-	 * Add a line to the display. 
+	 * Add a line to the display.
+	 * 
 	 * @param layout
 	 */
 	public static void addText(GlyphLayout... layout) {
-		for(GlyphLayout l : layout) {
+		for (GlyphLayout l : layout) {
 			text.add(l);
 		}
 	}
@@ -59,14 +60,16 @@ public class Main extends ApplicationAdapter implements InputProcessor {
 		Gdx.app.setLogLevel(Application.LOG_DEBUG);
 
 		font = new BitmapFont(Gdx.files.internal("isocteur.fnt"));
-		font.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		font.getRegion().getTexture()
+				.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		batch = new SpriteBatch();
 		text = new Array<GlyphLayout>();
-		
+
 		position = new GlyphLayout(font, "Positon: ");
 		velocity = new GlyphLayout(font, "Velocity: ");
 		orientation = new GlyphLayout(font, "Orientation:");
-		addText(position, velocity, orientation, new GlyphLayout(font, "--------------"));
+		addText(position, velocity, orientation, new GlyphLayout(font,
+				"--------------"));
 
 		shape = new ShapeRenderer();
 		renderer = new Box2DDebugRenderer();
@@ -76,25 +79,24 @@ public class Main extends ApplicationAdapter implements InputProcessor {
 		batchCam.setToOrtho(false, 1920, 1080);
 		// cam.zoom = 10f;
 
-
 		lastVel = new Vector2();
-		
+
 		Gdx.input.setInputProcessor(this);
-		
 
 		ai = new QuadAI();
 		init();
 
 	}
-	
+
 	private void init() {
-		if(scene != null) scene.getWorld().dispose();
+		if (scene != null)
+			scene.getWorld().dispose();
 		RubeSceneLoader loader = new RubeSceneLoader();
 		scene = loader.loadScene(Gdx.files.internal("world.json"));
 
 		quad = scene.getNamed(Body.class, "Drone").first();
 		ai.reset();
-		
+
 	}
 
 	Vector2 lastVel;
@@ -109,15 +111,14 @@ public class Main extends ApplicationAdapter implements InputProcessor {
 		cam.position.set(quad.getPosition().x, quad.getPosition().y, 0);
 		cam.update();
 
-		// Convert linear acceleration to an output similar to that an
-		// accelerometer would give.
+		// Convert linear acceleration to an output similar to that of
+		// an accelerometer.
 		// First convert the velocity to acceleration.
 		Vector2 acc = new Vector2(quad.getLinearVelocity());
 		acc.sub(lastVel);
 		acc.x *= scene.stepsPerSecond;
 		acc.y *= scene.stepsPerSecond;
-		// add gravity to the y axis (we have not yet accounted for
-		// orientation).
+		// add gravity to the y axis
 		acc.y -= scene.getWorld().getGravity().y;
 		// Get the total acceleration in both axis.
 		float totacc = (float) Math.sqrt(acc.x * acc.x + acc.y * acc.y);
@@ -144,12 +145,12 @@ public class Main extends ApplicationAdapter implements InputProcessor {
 
 		// Set the position of the forces to variables (as it will be used
 		// multiple times).
-		Vector2 posleft = new Vector2(quad.getPosition()).add(0.1724f
-				* MathUtils.cos(quad.getAngle()+2.84489f),
-				0.1724f * MathUtils.sin(quad.getAngle()+2.84489f));
+		Vector2 posleft = new Vector2(quad.getPosition()).add(
+				0.1724f * MathUtils.cos(quad.getAngle() + 2.84489f),
+				0.1724f * MathUtils.sin(quad.getAngle() + 2.84489f));
 		Vector2 posright = new Vector2(quad.getPosition()).add(
-				0.1724f * MathUtils.cos(quad.getAngle()+0.296706f),
-				0.1724f * MathUtils.sin(quad.getAngle()+0.296706f));
+				0.1724f * MathUtils.cos(quad.getAngle() + 0.296706f),
+				0.1724f * MathUtils.sin(quad.getAngle() + 0.296706f));
 
 		// apply the left/right forces to the corners of the quad.
 		quad.applyForce(
@@ -174,10 +175,10 @@ public class Main extends ApplicationAdapter implements InputProcessor {
 		shape.setProjectionMatrix(cam.combined);
 		shape.begin(ShapeType.Line);
 		shape.setColor(Color.YELLOW);
-		//shape.circle(posleft.x, posleft.y, 0.01f, 10);
-		//shape.circle(posright.x, posright.y, 0.01f, 10);
-		
-		shape.setColor(1, 1-forces.x/MaxForce, 0, 1);
+		// shape.circle(posleft.x, posleft.y, 0.01f, 10);
+		// shape.circle(posright.x, posright.y, 0.01f, 10);
+
+		shape.setColor(1, 1 - forces.x / MaxForce, 0, 1);
 		shape.line(
 				posleft,
 				new Vector2(posleft.x + forces.x
@@ -186,7 +187,7 @@ public class Main extends ApplicationAdapter implements InputProcessor {
 						* MathUtils.sin(1.5f * MathUtils.PI + quad.getAngle())
 						/ ppm));
 
-		shape.setColor(1, 1-forces.y/MaxForce, 0, 1);
+		shape.setColor(1, 1 - forces.y / MaxForce, 0, 1);
 		shape.line(
 				posright,
 				new Vector2(posright.x + forces.y
@@ -196,33 +197,47 @@ public class Main extends ApplicationAdapter implements InputProcessor {
 						/ ppm));
 
 		shape.end();
-		
-		orientation.setText(font, "Orientation: " + MathUtils.round(quad.getAngle()*MathUtils.radiansToDegrees) + " deg");
-		velocity.setText(font, "Velocity: " + MathUtils.round(quad.getLinearVelocity().x * 100)/100f + ", " + MathUtils.round(quad.getLinearVelocity().y * 100)/100f);
-		position.setText(font, "Position: " + MathUtils.round(quad.getPosition().x * 100)/100f + ", " + MathUtils.round(quad.getPosition().y * 100)/100f);
+
+		orientation.setText(
+				font,
+				"Orientation: "
+						+ MathUtils.round(quad.getAngle()
+								* MathUtils.radiansToDegrees) + " deg");
+		velocity.setText(
+				font,
+				"Velocity: "
+						+ MathUtils.round(quad.getLinearVelocity().x * 100)
+						/ 100f + ", "
+						+ MathUtils.round(quad.getLinearVelocity().y * 100)
+						/ 100f);
+		position.setText(
+				font,
+				"Position: " + MathUtils.round(quad.getPosition().x * 100)
+						/ 100f + ", "
+						+ MathUtils.round(quad.getPosition().y * 100) / 100f);
 
 		batchCam.update();
 		batch.setProjectionMatrix(batchCam.combined);
 		batch.begin();
-		
+
 		int position = 1070;
-		for(GlyphLayout l : text) {
+		for (GlyphLayout l : text) {
 			font.draw(batch, l, 10, position);
 			position -= l.height + 10;
 		}
-		
+
 		batch.end();
-		
+
 		scene.step();
 
 	}
-	
+
 	@Override
 	public void resize(int width, int height) {
-		cam.setToOrtho(false, width/ppm, height/ppm);
-		batchCam.setToOrtho(false, (width/(float)height)*1080, 1080);
+		cam.setToOrtho(false, width / ppm, height / ppm);
+		batchCam.setToOrtho(false, (width / (float) height) * 1080, 1080);
 	}
-	
+
 	@Override
 	public void dispose() {
 		shape.dispose();
@@ -232,12 +247,12 @@ public class Main extends ApplicationAdapter implements InputProcessor {
 		font.dispose();
 	}
 
-	//////////////////////////////////////////////////////////
+	// ////////////////////////////////////////////////////////
 	//
-	//	Input Processor
+	// Input Processor
 	//
-	//////////////////////////////////////////////////////////
-	
+	// ////////////////////////////////////////////////////////
+
 	@Override
 	public boolean keyDown(int keycode) {
 		return false;
@@ -245,7 +260,7 @@ public class Main extends ApplicationAdapter implements InputProcessor {
 
 	@Override
 	public boolean keyUp(int keycode) {
-		if(keycode == Keys.R) {
+		if (keycode == Keys.R) {
 			init();
 		}
 		return false;
@@ -278,8 +293,8 @@ public class Main extends ApplicationAdapter implements InputProcessor {
 
 	@Override
 	public boolean scrolled(int amount) {
-		cam.zoom = MathUtils.clamp(cam.zoom + amount*0.1f, 0.1f, 10);
-		
+		cam.zoom = MathUtils.clamp(cam.zoom + amount * 0.1f, 0.1f, 10);
+
 		return false;
 	}
 }
