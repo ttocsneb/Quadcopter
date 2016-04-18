@@ -13,8 +13,10 @@ Controls
 
 **R** resets the map.
 
-![sim-sit](https://raw.githubusercontent.com/ttocsneb/Quadcopter/master/raw/sim/web-assets/sim-sit.png)
-![sim-hover](https://raw.githubusercontent.com/ttocsneb/Quadcopter/master/raw/sim/web-assets/sim-hover.png)
-![sim-fast](https://raw.githubusercontent.com/ttocsneb/Quadcopter/master/raw/sim/web-assets/sim-fast.png)
+**Scroll** to zoom.
+
+![sim-sit](https://raw.githubusercontent.com/ttocsneb/Quadcopter/master/sim/web-assets/sim-sit.png)
+![sim-hover](https://raw.githubusercontent.com/ttocsneb/Quadcopter/master/sim/web-assets/sim-hover.png)
+![sim-fast](https://raw.githubusercontent.com/ttocsneb/Quadcopter/master/sim/web-assets/sim-fast.png)
 
 [download]: https://github.com/ttocsneb/Quadcopter/raw/master/sim/desktop/build/sim.jar
