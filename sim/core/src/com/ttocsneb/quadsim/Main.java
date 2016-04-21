@@ -43,6 +43,9 @@ public class Main extends ApplicationAdapter implements InputProcessor {
 	private GlyphLayout position;
 	private GlyphLayout orientation;
 	private GlyphLayout velocity;
+	
+	private int windDir = 45;//TODO Add control to the wind speed/direction.
+	private float windForce = 0f;
 
 	/**
 	 * Add a line to the display.
@@ -73,6 +76,7 @@ public class Main extends ApplicationAdapter implements InputProcessor {
 
 		shape = new ShapeRenderer();
 		renderer = new Box2DDebugRenderer();
+		renderer.setDrawJoints(false);
 		cam = new OrthographicCamera(Gdx.graphics.getWidth() / ppm,
 				Gdx.graphics.getHeight() / ppm);
 		batchCam = new OrthographicCamera();
@@ -107,6 +111,10 @@ public class Main extends ApplicationAdapter implements InputProcessor {
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+		for(Body b : scene.getBodies()) {
+			b.applyForceToCenter(windForce * MathUtils.cosDeg(windDir), windForce * MathUtils.sinDeg(windDir), false);
+		}
+		
 		// move the camera to the quad.
 		cam.position.set(quad.getPosition().x, quad.getPosition().y, 0);
 		cam.update();
