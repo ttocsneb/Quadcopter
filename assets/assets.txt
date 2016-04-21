@@ -1,7 +1,7 @@
 d:assets:0:application/unknown
 t:isocteur.fnt:11239:application/unknown
 i:isocteur_0.png:6472:image/png
-t:world.json:2831:application/unknown
+t:world.json:16208:application/unknown
 t:com/badlogic/gdx/graphics/g3d/particles/particles.fragment.glsl:770:application/unknown
 t:com/badlogic/gdx/graphics/g3d/particles/particles.vertex.glsl:2886:application/unknown
 t:com/badlogic/gdx/graphics/g3d/shaders/default.fragment.glsl:5163:application/unknown
