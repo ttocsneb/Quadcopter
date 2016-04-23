@@ -66,7 +66,7 @@ public class QuadAI {
 		
 		
 		//Set the wanted orientation, the max is 45 deg in both directions.
-		pitch_setpoint = Gdx.input.isKeyPressed(Keys.LEFT) ? 45 : Gdx.input.isKeyPressed(Keys.RIGHT) ? -45 : 0;
+		pitch_setpoint = Gdx.input.isKeyPressed(Keys.A) ? 45 : Gdx.input.isKeyPressed(Keys.D) ? -45 : 0;
 		
 		//Run the PID calculations.
 		calculatePID();
@@ -74,8 +74,8 @@ public class QuadAI {
 		// Set the throttle
 		throttle = MathUtils.clamp(
 				throttle
-						+ (Gdx.input.isKeyPressed(Keys.UP) ? 5 : (Gdx.input
-								.isKeyPressed(Keys.DOWN) ? -5 : 0)), 0, 800);
+						+ (Gdx.input.isKeyPressed(Keys.W) ? 5 : (Gdx.input
+								.isKeyPressed(Keys.S) ? -5 : 0)), 0, 800);
 
 		// Set each motors speed from the PID data.
 		motor1 = (float) (throttle + output_pitch);

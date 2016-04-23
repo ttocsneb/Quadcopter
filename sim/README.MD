@@ -12,7 +12,7 @@ You can run the program online [here][online], or download the program here [her
 
 Controls
 --
-**Arrow keys** control the throttle/pitch controls.
+**WASD** control the throttle/pitch.
 
 **R** resets the map.
 
