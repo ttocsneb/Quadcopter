@@ -1,5 +1,6 @@
 #include<Wire.h>
 
+#define BUZZER 17
 
 int receiver_input_channel_1, receiver_input_channel_2, receiver_input_channel_3, receiver_input_channel_4, receiver_input_channel_5, receiver_input_channel_6;
 
@@ -9,25 +10,38 @@ float pitch, roll, yaw;
 void setup() {
   Wire.begin();
   Serial.begin(9600);
-  initSensors();
+
+  pinMode(BUZZER, OUTPUT);
+
+  shortBeep();
   
-  initReceiver();
+  initSensors();
+
+  blip();
+  delay(50);
+  blip();
+  
+  //initReceiver();
 
 }
 
 
 
-double startTime, endTime;
+double Time, tmp;
+
+int t;
 
 void loop() {
-  startTime = micros();
-  accel_signalen();
-  endTime = micros();
-  
-  
-  
-  Serial.print("Pitch: ");Serial.print(pitch);Serial.print(", Roll: ");Serial.print(roll);Serial.print("; Time: ");Serial.println(endTime-startTime);
+  t++;
+  if(t == 125) {
+    t =0;
+    Serial.print(pitch);Serial.print(";");Serial.println(roll);
+  }
 
-  delay(250);
+  signalen();
+    
   
+  
+  long b = micros();
+  while(micros()-b < 4000);
 }
